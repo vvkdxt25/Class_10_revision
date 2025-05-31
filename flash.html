@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards: Resources and Development</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease; /* Smooth background transition */
+        }
+        .flashcard-container {
+            perspective: 1000px;
+            width: 90%;
+            max-width: 500px; /* Max width for larger screens */
+            height: 300px; /* Fixed height for consistent card size */
+        }
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column; /* Allow content to stack vertically */
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            border-radius: 12px; /* Rounded corners for card faces */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center; /* Center text */
+        }
+        .flashcard-front {
+            background-color: #4A90E2; /* A pleasant blue */
+            color: white;
+        }
+        .flashcard-back {
+            background-color: #F5A623; /* A warm orange */
+            color: white;
+            transform: rotateY(180deg);
+        }
+        .flashcard-term {
+            font-size: 1.5rem; /* Larger text for term/question */
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .flashcard-definition {
+            font-size: 1rem; /* Standard text for definition/answer */
+        }
+        .nav-button {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .nav-button:hover {
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+        .nav-button:active {
+            transform: translateY(0px); /* Press down effect */
+        }
+        .progress-bar-container {
+            width: 90%;
+            max-width: 500px;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 10px; /* Space above progress bar */
+            margin-bottom: 20px; /* Space below progress bar */
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50; /* Green for progress */
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+        /* Message Box Styles */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, top 0.5s ease-in-out;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .message-box.show {
+            opacity: 1;
+            top: 50px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-100 to-sky-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div id="messageBox" class="message-box"></div>
+
+    <header class="mb-8 text-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-slate-700">Geography Flashcards</h1>
+        <p class="text-xl sm:text-2xl text-slate-600 mt-2">Chapter: Resources and Development</p>
+    </header>
+
+    <div class="flashcard-container mb-6">
+        <div id="flashcard" class="flashcard">
+            <div class="flashcard-face flashcard-front">
+                <div id="flashcardTerm" class="flashcard-term"></div>
+                <div class="text-sm mt-4">(Click to flip)</div>
+            </div>
+            <div class="flashcard-face flashcard-back">
+                <div id="flashcardDefinition" class="flashcard-definition"></div>
+                 <div class="text-sm mt-4">(Click to flip)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-bar-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+
+    <div class="flex space-x-4">
+        <button id="prevCard" class="nav-button bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md">
+            Previous
+        </button>
+        <button id="nextCard" class="nav-button bg-sky-500 hover:bg-sky-600 text-white font-semibold py-3 px-6 rounded-lg shadow-md">
+            Next
+        </button>
+    </div>
+
+    <footer class="mt-12 text-center text-sm text-slate-500">
+        <p>Keep revising! You're doing great.</p>
+    </footer>
+
+    <script>
+        // --- Flashcard Data ---
+        const flashcards = [
+            { term: "What are resources?", definition: "Everything available in our environment which can be used to satisfy our needs, provided, it is technologically accessible, economically feasible and culturally acceptable." },
+            { term: "Biotic Resources", definition: "Resources obtained from the biosphere and have life, such as human beings, flora and fauna, fisheries, livestock etc." },
+            { term: "Abiotic Resources", definition: "All those things which are composed of non-living things are called abiotic resources. For example, rocks and metals." },
+            { term: "Renewable Resources", definition: "Resources which can be renewed or reproduced by physical, chemical or mechanical processes. E.g., solar and wind energy, water, forests." },
+            { term: "Non-Renewable Resources", definition: "These occur over a very long geological time. Minerals and fossil fuels are examples. They take millions of years in their formation." },
+            { term: "Individual Resources", definition: "Resources owned privately by individuals. E.g., plantation, pasture lands, ponds, water in wells etc." },
+            { term: "Community Owned Resources", definition: "Resources accessible to all the members of the community. E.g., grazing grounds, burial grounds, public parks." },
+            { term: "National Resources", definition: "Technically, all the resources belong to the nation. The country has legal powers to acquire even private property for public good. E.g., roads, canals, railways." },
+            { term: "International Resources", definition: "There are international institutions which regulate some resources. The oceanic resources beyond 200 nautical miles of the Exclusive Economic Zone belong to open ocean and no individual country can utilize these without the concurrence of international institutions." },
+            { term: "Potential Resources", definition: "Resources which are found in a region, but have not been utilized. E.g., wind and solar energy potential in Gujarat and Rajasthan." },
+            { term: "Developed Resources", definition: "Resources which are surveyed and their quality and quantity have been determined for utilisation. The development of resources depends on technology and level of their feasibility." },
+            { term: "Stock", definition: "Materials in the environment which have the potential to satisfy human needs but human beings do not have the appropriate technology to access these." },
+            { term: "Reserves", definition: "The subset of the stock, which can be put into use with the help of existing technical 'know-how' but their use has not been started." },
+            { term: "Sustainable Development", definition: "Sustainable economic development means development should take place without damaging the environment, and development in the present should not compromise with the needs of the future generations." },
+            { term: "Rio de Janeiro Earth Summit, 1992", definition: "In June 1992, more than 100 heads of states met in Rio de Janeiro in Brazil, for the first International Earth Summit. The Summit was convened for addressing urgent problems of environmental protection and socio-economic development at the global level." },
+            { term: "Agenda 21", definition: "It is the declaration signed by world leaders in 1992 at the United Nations Conference on Environment and Development (UNCED), which took place at Rio de Janeiro, Brazil. It aims at achieving global sustainable development." },
+            { term: "Resource Planning", definition: "A widely accepted strategy for judicious use of resources. It has importance in a country like India, which has enormous diversity in the availability of resources." },
+            { term: "Land Degradation", definition: "Continuous use of land over a long period of time without taking appropriate measures to conserve and manage it, has resulted in land degradation." },
+            { term: "Main causes of land degradation in India", definition: "Deforestation, overgrazing, mining and quarrying, over-irrigation leading to waterlogging, salinity and alkalinity." },
+            { term: "Soil Erosion", definition: "The denudation of the soil cover and subsequent washing down is described as soil erosion." },
+            { term: "Gully Erosion", definition: "The running water cuts through the clayey soils and makes deep channels as gullies. The land becomes unfit for cultivation and is known as bad land." },
+            { term: "Sheet Erosion", definition: "Sometimes water flows as a sheet over large areas down a slope. In such cases the top soil is washed away." },
+            { term: "Methods of Soil Conservation", definition: "Contour ploughing, terrace cultivation, strip cropping, shelter belts, afforestation, controlled grazing." },
+            { term: "Alluvial Soil", definition: "Most widely spread and important soil. Entire northern plains are made of alluvial soil. Also found in eastern coastal plains particularly in the deltas of Mahanadi, Godavari, Krishna and Kaveri rivers." },
+            { term: "Black Soil (Regur Soil)", definition: "Black in colour and ideal for growing cotton. Found in the plateau areas of Maharashtra, Saurashtra, Malwa, Madhya Pradesh and Chhattisgarh and extend in south-east direction along Godavari and Krishna valleys." },
+            { term: "Red and Yellow Soil", definition: "Develops on crystalline igneous rocks in areas of low rainfall in the eastern and southern parts of the Deccan plateau. Yellowish colour due to hydration of ferric oxide." },
+            { term: "Laterite Soil", definition: "Develops in areas with high temperature and heavy rainfall. Result of intense leaching. Suitable for cultivation with adequate doses of manures and fertilizers. Found in Karnataka, Kerala, Tamil Nadu, Madhya Pradesh, and hilly areas of Odisha and Assam." },
+            { term: "Arid Soil", definition: "Ranges from red to brown in colour. Generally sandy in texture and saline in nature. Found in western Rajasthan. Lacks humus and moisture." },
+            { term: "Forest Soil", definition: "Found in the hilly and mountainous areas where sufficient rain forests are available. Loamy and silty in valley sides and coarse grained in the upper slopes." }
+        ];
+
+        // --- DOM Elements ---
+        const flashcardElement = document.getElementById('flashcard');
+        const flashcardTermElement = document.getElementById('flashcardTerm');
+        const flashcardDefinitionElement = document.getElementById('flashcardDefinition');
+        const prevCardButton = document.getElementById('prevCard');
+        const nextCardButton = document.getElementById('nextCard');
+        const progressBarElement = document.getElementById('progressBar');
+        const messageBox = document.getElementById('messageBox');
+
+        // --- State ---
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        // --- Functions ---
+
+        // Function to show a custom message
+        function showMessage(message, duration = 3000) {
+            messageBox.textContent = message;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, duration);
+        }
+
+        function updateFlashcard() {
+            if (flashcards.length === 0) {
+                flashcardTermElement.textContent = "No flashcards available.";
+                flashcardDefinitionElement.textContent = "Please add some flashcards.";
+                showMessage("No flashcards loaded.", 5000);
+                return;
+            }
+            const currentCard = flashcards[currentCardIndex];
+            flashcardTermElement.textContent = currentCard.term;
+            flashcardDefinitionElement.textContent = currentCard.definition;
+            if (isFlipped) {
+                flashcardElement.classList.add('is-flipped');
+            } else {
+                flashcardElement.classList.remove('is-flipped');
+            }
+            updateProgressBar();
+        }
+
+        function updateProgressBar() {
+            if (flashcards.length > 0) {
+                const progressPercentage = ((currentCardIndex + 1) / flashcards.length) * 100;
+                progressBarElement.style.width = `${progressPercentage}%`;
+            } else {
+                progressBarElement.style.width = '0%';
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            flashcardElement.classList.toggle('is-flipped');
+        }
+
+        function showNextCard() {
+            if (currentCardIndex < flashcards.length - 1) {
+                currentCardIndex++;
+            } else {
+                currentCardIndex = 0; // Loop back to the first card
+                showMessage("You've reached the end! Starting over.");
+            }
+            isFlipped = false; // Show the term side of the new card
+            updateFlashcard();
+        }
+
+        function showPrevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+            } else {
+                currentCardIndex = flashcards.length - 1; // Loop back to the last card
+                showMessage("You're at the beginning! Wrapping to the end.");
+            }
+            isFlipped = false; // Show the term side of the new card
+            updateFlashcard();
+        }
+
+        // --- Event Listeners ---
+        flashcardElement.addEventListener('click', flipCard);
+        nextCardButton.addEventListener('click', showNextCard);
+        prevCardButton.addEventListener('click', showPrevCard);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowRight') {
+                showNextCard();
+            } else if (event.key === 'ArrowLeft') {
+                showPrevCard();
+            } else if (event.key === ' ' || event.key === 'Enter') { // Space or Enter to flip
+                event.preventDefault(); // Prevent page scroll on space
+                flipCard();
+            }
+        });
+
+        // --- Initial Load ---
+        if (flashcards.length > 0) {
+            updateFlashcard();
+        } else {
+            flashcardTermElement.textContent = "Loading Flashcards...";
+            flashcardDefinitionElement.textContent = "Please wait or add flashcards.";
+            showMessage("No flashcards found. Please check the data.", 5000);
+            updateProgressBar(); // Initialize progress bar even if empty
+        }
+
+    </script>
+</body>
+</html>
