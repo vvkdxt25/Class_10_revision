@@ -1,4 +1,111 @@
-<input type="text" id="userInput" placeholder="Ask Gemini something...">
-<button onclick="askGemini()">Ask</button>
-<div id="responseArea"></div>
-<link><script src="myscripts.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yash Dixit's Study Hub</title>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Main Container */
+        .container {
+            width: 90%;
+            max-width: 960px;
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styles */
+        header h1 {
+            color: #1a237e; /* A deep blue color */
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        header p {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+        }
+
+        /* Navigation Grid Styles */
+        nav {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        /* Link Card Styles */
+        .nav-link {
+            display: block;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #3f51b5, #1a237e); /* Blue gradient */
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 1.3em;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Applying different colors to different cards for visual appeal */
+        .nav-link.english { background: linear-gradient(135deg, #d32f2f, #b71c1c); } /* Red */
+        .nav-link.hindi { background: linear-gradient(135deg, #f57c00, #e65100); } /* Orange */
+        .nav-link.math { background: linear-gradient(135deg, #388e3c, #1b5e20); } /* Green */
+        .nav-link.science { background: linear-gradient(135deg, #0288d1, #01579b); } /* Blue */
+        .nav-link.sst { background: linear-gradient(135deg, #7b1fa2, #4a148c); } /* Purple */
+        .nav-link.ai { background: linear-gradient(135deg, #455a64, #263238); } /* Grey */
+
+
+        /* Footer Styles */
+        footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Yash Dixit's Study Hub</h1>
+            <p>Your central portal for all subject materials and resources.</p>
+        </header>
+
+        <nav>
+            <a href="english.html" class="nav-link english">English</a>
+            <a href="hindi.html" class="nav-link hindi">Hindi</a>
+            <a href="math.html" class="nav-link math">Math</a>
+            <a href="science.html" class="nav-link science">Science</a>
+            <a href="sst.html" class="nav-link sst">SST</a>
+            <a href="ai.html" class="nav-link ai">AI</a>
+        </nav>
+
+        <footer>
+            <p>&copy; 2025 - Hosted on GitHub</p>
+        </footer>
+    </div>
+
+</body>
+</html>
